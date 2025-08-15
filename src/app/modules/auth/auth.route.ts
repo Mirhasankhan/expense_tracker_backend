@@ -1,9 +1,7 @@
 import express from "express";
 import { authController } from "./auth.controller";
 import auth from "../../middleware/auth";
-import validateRequest from "../../middleware/validateRequest";
-import { authValidation } from "./auth.validation";
-import { fileUploader } from "../../utils/fileUploader";
+
 
 const router = express.Router();
 router.post("/login", authController.loginUser);
