@@ -101,12 +101,19 @@ const getCategoryWiseExpensesFromDB = async (userId: string) => {
   ]);
 
   const categoryWise: Record<string, number> = {};
+  let totalExpense = 0;
+
   result.forEach((item) => {
     categoryWise[item._id] = item.total;
+    totalExpense += item.total;
   });
 
-  return categoryWise;
+  return {
+    categoryWise,
+    totalExpense,
+  };
 };
+
 
 export const expenseServices = {
   createExpenseIntoDB,
