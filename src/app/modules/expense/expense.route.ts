@@ -15,6 +15,7 @@ router.post(
   expenseController.createExpense
 );
 router.get("/", auth("User"), expenseController.getExpenses);
+router.get("/:id", expenseController.getExpense);
 router.get("/category", auth("User"), expenseController.categoryWiseExpense);
 router.delete("/:id", expenseController.deleteExpense);
 router.put(

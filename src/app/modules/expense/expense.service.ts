@@ -1,7 +1,7 @@
 import AppError from "../../utils/AppError";
 import { User } from "../user/user.model";
 import { Expense, TExpense } from "./expense.model";
-import {Types} from 'mongoose'
+import { Types } from "mongoose";
 
 const createExpenseIntoDB = async (userId: string, payload: TExpense) => {
   const user = await User.findOne({ _id: userId });
@@ -44,6 +44,13 @@ const getExpensesFromDB = async (
   }
 
   return expenses;
+};
+const getSingleExpenseFromDb = async (expenseId: string) => {
+  const expense = await Expense.findById(expenseId);
+  if (!expense) {
+    throw new AppError(404, "Expense not found");
+  }
+  return expense
 };
 
 const deleteExpenseFromDB = async (expenseId: string) => {
@@ -93,7 +100,6 @@ const getCategoryWiseExpensesFromDB = async (userId: string) => {
     },
   ]);
 
-
   const categoryWise: Record<string, number> = {};
   result.forEach((item) => {
     categoryWise[item._id] = item.total;
@@ -102,11 +108,11 @@ const getCategoryWiseExpensesFromDB = async (userId: string) => {
   return categoryWise;
 };
 
-
 export const expenseServices = {
   createExpenseIntoDB,
   getExpensesFromDB,
   deleteExpenseFromDB,
   editExpenseFromDB,
-  getCategoryWiseExpensesFromDB
+  getCategoryWiseExpensesFromDB,
+  getSingleExpenseFromDb
 };

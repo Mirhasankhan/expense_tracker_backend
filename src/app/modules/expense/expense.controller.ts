@@ -32,6 +32,17 @@ const getExpenses = catchAsync(async (req, res) => {
     data: expenses,
   });
 });
+const getExpense = catchAsync(async (req, res) => {
+  const expenseId = req.params.id;
+  const expenses = await expenseServices.getSingleExpenseFromDb(expenseId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Expense retrieved successfully",
+    data: expenses,
+  });
+});
 const categoryWiseExpense = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const expenses = await expenseServices.getCategoryWiseExpensesFromDB(userId);
@@ -69,7 +80,8 @@ const deleteExpense = catchAsync(async (req, res) => {
 export const expenseController = {
   createExpense,
   getExpenses,
+  getExpense,
   deleteExpense,
   updateExpense,
-  categoryWiseExpense
+  categoryWiseExpense,
 };
