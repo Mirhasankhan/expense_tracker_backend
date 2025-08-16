@@ -1,6 +1,7 @@
 import AppError from "../../utils/AppError";
 import { User } from "../user/user.model";
 import { Expense, TExpense } from "./expense.model";
+import {Types} from 'mongoose'
 
 const createExpenseIntoDB = async (userId: string, payload: TExpense) => {
   const user = await User.findOne({ _id: userId });
@@ -17,15 +18,28 @@ const createExpenseIntoDB = async (userId: string, payload: TExpense) => {
   return newExpense;
 };
 
-const getExpensesFromDB = async (userId: string) => {
+const getExpensesFromDB = async (
+  userId: string,
+  search?: string,
+  category?: string
+) => {
   const user = await User.findOne({ _id: userId });
   if (!user) {
     throw new AppError(404, "User not found");
   }
 
-  const expenses = await Expense.find({ userId: userId }).lean();
+  const filter: any = { userId };
+  if (search) {
+    filter.title = { $regex: search, $options: "i" };
+  }
 
-  if (!expenses) {
+  if (category) {
+    filter.category = category;
+  }
+
+  const expenses = await Expense.find(filter).lean();
+
+  if (!expenses || expenses.length === 0) {
     throw new AppError(404, "No expense found");
   }
 
@@ -63,9 +77,36 @@ const editExpenseFromDB = async (
   return updatedExpense;
 };
 
+const getCategoryWiseExpensesFromDB = async (userId: string) => {
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  const result = await Expense.aggregate([
+    { $match: { userId: new Types.ObjectId(userId) } },
+    {
+      $group: {
+        _id: "$category",
+        total: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+
+  const categoryWise: Record<string, number> = {};
+  result.forEach((item) => {
+    categoryWise[item._id] = item.total;
+  });
+
+  return categoryWise;
+};
+
+
 export const expenseServices = {
   createExpenseIntoDB,
   getExpensesFromDB,
   deleteExpenseFromDB,
   editExpenseFromDB,
+  getCategoryWiseExpensesFromDB
 };

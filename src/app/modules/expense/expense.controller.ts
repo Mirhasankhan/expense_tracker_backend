@@ -16,7 +16,25 @@ const createExpense = catchAsync(async (req, res) => {
   });
 });
 const getExpenses = catchAsync(async (req, res) => {
-  const expenses = await expenseServices.getExpensesFromDB(req.user.id);
+  const userId = req.user.id;
+  const search = req.query.search;
+  const category = req.query.category;
+  const expenses = await expenseServices.getExpensesFromDB(
+    userId,
+    search as string,
+    category as string
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Expenses retrieved successfully",
+    data: expenses,
+  });
+});
+const categoryWiseExpense = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const expenses = await expenseServices.getCategoryWiseExpensesFromDB(userId);
 
   sendResponse(res, {
     success: true,
@@ -52,5 +70,6 @@ export const expenseController = {
   createExpense,
   getExpenses,
   deleteExpense,
-  updateExpense
+  updateExpense,
+  categoryWiseExpense
 };
